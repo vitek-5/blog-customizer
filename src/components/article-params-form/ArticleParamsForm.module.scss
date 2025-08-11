@@ -12,6 +12,13 @@
 	transform: translate(0);
 }
 
+.title {
+	font-weight: 800;
+	font-size: 31px;
+	font-family: 'Open Sans', sans-serif;
+	text-transform: uppercase;
+}
+
 .form {
 	display: flex;
 	flex-shrink: 0;

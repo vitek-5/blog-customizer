@@ -7,6 +7,7 @@ import {
 	ArticleStateType,
 	backgroundColors,
 	contentWidthArr,
+	defaultArticleState,
 	fontColors,
 	fontFamilyOptions,
 	fontSizeOptions,
@@ -14,20 +15,27 @@ import {
 import { Separator } from 'src/ui/separator';
 import { Select } from 'src/ui/select';
 import { RadioGroup } from 'src/ui/radio-group';
+import { useOutsideClickClose } from 'src/ui/select/hooks/useOutsideClickClose';
+import clsx from 'clsx';
 type ArticleParamsFormType = {
 	articleState: ArticleStateType;
 	onSubmit: (newArticleStyles: ArticleStateType) => void;
+	onReset: () => void;
 };
 
 export const ArticleParamsForm = ({
 	articleState,
 	onSubmit,
+	onReset,
 }: ArticleParamsFormType) => {
-	const [isOpen, setIsOpen] = useState(false);
+	const [isMenuOpen, setIsMenuOpen] = useState(false);
 
 	const [formState, setFormState] = useState(articleState);
 
-	const formRef = useRef<HTMLFormElement>(null);
+	const asideClassName = clsx(styles.container, {
+		[styles.container_open]: isMenuOpen,
+	});
+	const asideRef = useRef<HTMLDivElement>(null);
 
 	const handleFormSubmit = (e: FormEvent) => {
 		e.preventDefault();
@@ -36,26 +44,30 @@ export const ArticleParamsForm = ({
 
 	const handleFormReset = (e: FormEvent) => {
 		e.preventDefault();
-		formRef.current?.reset();
-		setFormState(articleState);
+		onReset();
+		setFormState(defaultArticleState);
 	};
+
+	useOutsideClickClose({
+		isOpen: isMenuOpen,
+		rootRef: asideRef,
+		onClose: () => setFormState(articleState),
+		onChange: setIsMenuOpen,
+	});
 	return (
 		<>
 			<ArrowButton
-				isOpen={isOpen}
+				isOpen={isMenuOpen}
 				onClick={() => {
-					setIsOpen(!isOpen);
+					setIsMenuOpen(!isMenuOpen);
 				}}
 			/>
-			<aside
-				className={`${styles.container} ${
-					isOpen ? styles.container_open : ''
-				}`}>
+			<aside ref={asideRef} className={asideClassName}>
 				<form
-					ref={formRef}
 					className={styles.form}
 					onSubmit={handleFormSubmit}
 					onReset={handleFormReset}>
+					<h2 className={styles.title}>Задайте параметры</h2>
 					<Select
 						selected={formState.fontFamilyOption}
 						options={fontFamilyOptions}
